@@ -1,0 +1,49 @@
+# Archivos generados por el entorno
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de compilación
+bin/
+obj/
+out/
+
+# Paquetes y dependencias
+*.nuget/packages/
+*.nupkg
+*.snupkg
+
+# Configuración local
+*.vs/
+*.DS_Store
+.env
+
+# Archivos de Log
+*.log
+
+# Archivos temporales y de depuración
+*.pdb
+*.mdb
+*.ilk
+*.idb
+*.tlog
+*.log
+*.tmp
+*.temp
+
+# Archivos específicos de OS
+Thumbs.db
+*.swp
+*.bak
+*.old
+*.orig
+*.tmp
+*.vscode
+
+# Archivos de publicación y cache
+.publish/
+.cache/
+wwwroot/assets/
