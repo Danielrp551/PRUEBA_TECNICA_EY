@@ -73,7 +73,7 @@ namespace PRUEBA_TECNICA_EY.Repository
                 }
                 else
                 {
-                    // En caso de que SortBy tenga otro valor (o se desee un ordenamiento por defecto), se utiliza fecha de edición
+                    // En caso de que SortBy tenga otro valor, se utiliza fecha de edición
                     orderedProveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
                 }
 
@@ -85,9 +85,6 @@ namespace PRUEBA_TECNICA_EY.Repository
                 // Si no se especifica SortBy, ordenar solamente por FechaUltimaEdicion
                 proveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
             }
-
-            // Ordenarlos por fecha de ultima edicion
-            //proveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
 
             var skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
 

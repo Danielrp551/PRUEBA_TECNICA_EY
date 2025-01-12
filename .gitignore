@@ -47,3 +47,6 @@ Thumbs.db
 .publish/
 .cache/
 wwwroot/assets/
+
+# Datos de producción
+appsettings.Production.json

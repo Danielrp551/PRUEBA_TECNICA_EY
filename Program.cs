@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,23 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
 })
 .AddEntityFrameworkStores<ApplicationDBContext>()
 .AddErrorDescriber<SpanishIdentityErrorDescriber>();
+
+// rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = 429;
+
+    options.AddPolicy("ScraperPolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Request.Path.Value ?? string.Empty, // Se aplica a cada ruta individualmente
+            factory: key => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,                   // Máximo 20 solicitudes
+                Window = TimeSpan.FromMinutes(1),     // Por cada 1 minuto
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0                        // No se encola ninguna solicitud extra
+            }));
+});
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme =
@@ -112,6 +130,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRateLimiter();
 
 //CORS
 app.UseCors(x => x
