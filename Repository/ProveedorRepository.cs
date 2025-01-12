@@ -29,14 +29,14 @@ namespace PRUEBA_TECNICA_EY.Repository
         public async Task<Proveedor?> DeleteAsync(int id)
         {
             var proveedor = await _context.Proveedores.FirstOrDefaultAsync(p => p.Id == id);
-            if(proveedor == null)
+            if (proveedor == null)
                 return null;
 
             // Hard delete
             _context.Proveedores.Remove(proveedor);
 
             await _context.SaveChangesAsync();
-            return proveedor;            
+            return proveedor;
         }
 
         public async Task<List<Proveedor>> GetAllAsync(ProveedorQueryObject queryObject)
@@ -44,7 +44,7 @@ namespace PRUEBA_TECNICA_EY.Repository
             var proveedores = _context.Proveedores.AsQueryable();
 
             // Filtro por busqueda de texto - barra de busqueda
-            if(!string.IsNullOrWhiteSpace(queryObject.SearchValue))
+            if (!string.IsNullOrWhiteSpace(queryObject.SearchValue))
             {
                 proveedores = proveedores.Where(p => p.RazonSocial.Contains(queryObject.SearchValue) || p.NombreComercial.Contains(queryObject.SearchValue));
             }
@@ -55,11 +55,42 @@ namespace PRUEBA_TECNICA_EY.Repository
                 proveedores = proveedores.Where(p => queryObject.Paises.Contains(p.Pais));
             }
 
+            if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
+            {
+                IOrderedQueryable<Proveedor> orderedProveedores;
+
+                if (queryObject.SortBy.Equals("nombreComercial", StringComparison.OrdinalIgnoreCase))
+                {
+                    orderedProveedores = queryObject.IsDescending
+                        ? proveedores.OrderByDescending(p => p.NombreComercial)
+                        : proveedores.OrderBy(p => p.NombreComercial);
+                }
+                else if (queryObject.SortBy.Equals("facturacionAnualUSD", StringComparison.OrdinalIgnoreCase))
+                {
+                    orderedProveedores = queryObject.IsDescending
+                        ? proveedores.OrderByDescending(p => p.FacturacionAnualUSD)
+                        : proveedores.OrderBy(p => p.FacturacionAnualUSD);
+                }
+                else
+                {
+                    // En caso de que SortBy tenga otro valor (o se desee un ordenamiento por defecto), se utiliza fecha de edición
+                    orderedProveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
+                }
+
+                // Ordenamiento secundario por FechaUltimaEdicion
+                proveedores = orderedProveedores.ThenByDescending(p => p.FechaUltimaEdicion);
+            }
+            else
+            {
+                // Si no se especifica SortBy, ordenar solamente por FechaUltimaEdicion
+                proveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
+            }
+
             // Ordenarlos por fecha de ultima edicion
-            proveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
+            //proveedores = proveedores.OrderByDescending(p => p.FechaUltimaEdicion);
 
             var skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
-            
+
             return await proveedores.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
         }
 
@@ -71,7 +102,7 @@ namespace PRUEBA_TECNICA_EY.Repository
         public async Task<Proveedor?> UpdateAsync(int id, UpdateProveedorRequestDto proveedor)
         {
             var proveedorUpdate = await _context.Proveedores.FirstOrDefaultAsync(p => p.Id == id);
-            if(proveedorUpdate == null)
+            if (proveedorUpdate == null)
                 return null;
 
             proveedorUpdate.RazonSocial = proveedor.RazonSocial;

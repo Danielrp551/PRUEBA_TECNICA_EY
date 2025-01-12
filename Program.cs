@@ -7,6 +7,7 @@ using PRUEBA_TECNICA_EY.Data;
 using PRUEBA_TECNICA_EY.Identity;
 using PRUEBA_TECNICA_EY.Interfaces;
 using PRUEBA_TECNICA_EY.Repository;
+using PRUEBA_TECNICA_EY.Scrapers;
 using PRUEBA_TECNICA_EY.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
@@ -56,6 +61,17 @@ builder.Services.AddAuthentication(options => {
 // Inyectar dependencias
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Scrapers
+builder.Services.AddHttpClient<IScraper, CIIJScraper>(client =>
+{
+    client.BaseAddress = new Uri("https://offshoreleaks.icij.org/");
+    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; ScraperBot/1.0)");
+});
+builder.Services.AddScoped<IScraper, OFACScraper>();
+builder.Services.AddScoped<IScraper, WorldBankScraper>();
+
+builder.Services.AddScoped<IScraperService, ScraperService>();
 
 // PARA PROBAR EL JWT EN SWAGGER
 builder.Services.AddSwaggerGen(option =>
