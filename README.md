@@ -21,8 +21,8 @@ El objetivo de este repositorio es ofrecer una solución integral para automatiz
 
 1. **Clonar el repositorio**
    ```bash
-   git clone <[URL_DEL_REPOSITORIO_BACKEND](https://github.com/Danielrp551/PRUEBA_TECNICA_EY.git)>
-   cd <PRUEBA_TECNICA_EY>
+   git clone https://github.com/Danielrp551/PRUEBA_TECNICA_EY.git
+   cd PRUEBA_TECNICA_EY
    ```
 
 2. **Restaurar dependencias NuGet**
